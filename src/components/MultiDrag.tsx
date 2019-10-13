@@ -37,6 +37,7 @@ type KnownLayerActions = ReturnType<
 
 const LayerActions = {
   selected: (id: Layer['id']) => action('layer/selected', { id }),
+  unselectedAll: () => action('layer/unselectedAll', {}),
   dragStarted: () => action('layer/dragStarted', {}),
   dragged: (dx: number, dy: number) => action('layer/dragged', { dx, dy }),
   dragEnded: () => action('layer/dragEnded', {})
@@ -44,10 +45,16 @@ const LayerActions = {
 
 const reducer = (currentState = initialState, action: KnownLayerActions) =>
   immer(currentState, state => {
+    // console.debug(currentState, action)
     switch (action.type) {
       case 'layer/selected': {
         const { id } = action.payload
-        state.selected[id] = !state.selected[id]
+        state.selected[id] = true
+        break
+      }
+
+      case 'layer/unselectedAll': {
+        state.selected = {}
         break
       }
 
@@ -101,12 +108,26 @@ export default function MultiDrag() {
     dispatch(LayerActions.dragged(dx, dy))
   }
 
-  const onDragStart = () => {
+  const onDragStart = (_x: number, _y: number, e: Event) => {
+    e.stopPropagation()
     dispatch(LayerActions.dragStarted())
   }
 
-  const onDragEnd = () => {
+  const onDragEnd = (e: Event) => {
+    e.stopPropagation()
     dispatch(LayerActions.dragEnded())
+  }
+
+  const composition = useRef<SVGGElement>(null)
+  const onOutsideClick = (e: React.MouseEvent) => {
+    if (!composition.current) {
+      return
+    }
+
+    const outside = !composition.current.contains(e.target as Node)
+    if (outside) {
+      dispatch(LayerActions.unselectedAll())
+    }
   }
 
   return (
@@ -115,18 +136,22 @@ export default function MultiDrag() {
       width="500"
       height="500"
       style={{ background: '#eee' }}
+      onClick={onOutsideClick}
     >
-      {sortBy(state.layers, l => l.z).map(layer => (
-        <Layer
-          key={layer.id}
-          layer={layer}
-          onSelect={onSelect}
-          selected={!!state.selected[layer.id]}
-          onDragStart={onDragStart}
-          onMove={onMove}
-          onDragEnd={onDragEnd}
-        />
-      ))}
+      <g ref={composition}>
+        {sortBy(state.layers, l => l.z).map(layer => (
+          <Layer
+            key={layer.id}
+            layer={layer}
+            onSelect={onSelect}
+            selected={!!state.selected[layer.id]}
+            isDragging={!!state.dragStartPosition[layer.id]}
+            onDragStart={onDragStart}
+            onMove={onMove}
+            onDragEnd={onDragEnd}
+          />
+        ))}
+      </g>
     </svg>
   )
 }
@@ -134,6 +159,7 @@ export default function MultiDrag() {
 function Layer({
   layer,
   selected,
+  isDragging,
   onSelect,
   onDragStart,
   onDragEnd,
@@ -141,9 +167,10 @@ function Layer({
 }: {
   layer: Layer
   selected?: boolean
+  isDragging?: boolean
   onSelect(id: Layer['id']): void
-  onDragStart(): void
-  onDragEnd(): void
+  onDragStart(_x: number, _y: number, e: Event): void
+  onDragEnd(e: Event): void
   onMove(dx: number, dy: number, x: number, y: number, event: MouseEvent): void
 }) {
   const ref = useRef<SVGRectElement | null>(null)
@@ -158,7 +185,9 @@ function Layer({
   }, [])
 
   const onClick = () => {
-    onSelect(layer.id)
+    if (!isDragging) {
+      onSelect(layer.id)
+    }
   }
 
   return (
