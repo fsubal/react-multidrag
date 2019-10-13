@@ -747,6 +747,11 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.144.tgz#12e57fc99064bce45e5ab3c8bc4783feb75eab8e"
   integrity sha512-ogI4g9W5qIQQUhXAclq6zhqgqNUr7UlFaqDHbch7WLSLeeM/7d3CRaw7GLajxvyFvhJqw4Rpcz5bhoaYtIx6Tg==
 
+"@types/mina@*":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@types/mina/-/mina-0.4.1.tgz#485b9f0e5d76bff08cd582bdf3f6aaab286c1d82"
+  integrity sha512-7iXlwgI5nbW7Jbg3Yui9ZQbaoV4ftq8c/2vI9cntPcqz5jRedPoL5yYk4uDxBSWsCtA8H9JEJgNLwSBL6K7dZQ==
+
 "@types/prop-types@*":
   version "15.7.3"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.3.tgz#2ab0d5da2e5815f94b0b9d4b95d1e5f243ab2ca7"
@@ -771,6 +776,13 @@
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
+
+"@types/snapsvg@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@types/snapsvg/-/snapsvg-0.5.0.tgz#01ca6f37ff567d01448444845f6d53c1bfe58954"
+  integrity sha512-epmNLxsCGYvg1tSodnZo5bGJ24KD0hYnALXBhr1m0k1vcMYxjEx2PETlYrrGREzGvRQnDg850DhOtghRtoDVtg==
+  dependencies:
+    "@types/mina" "*"
 
 abab@^2.0.0:
   version "2.0.2"
@@ -2077,6 +2089,11 @@ etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
+
+eve@~0.5.1:
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/eve/-/eve-0.5.4.tgz#67d080b9725291d7e389e34c26860dd97f1debaa"
+  integrity sha1-Z9CAuXJSkdfjieNMJoYN2X8d66o=
 
 events@^3.0.0:
   version "3.0.0"
@@ -4601,6 +4618,20 @@ snapdragon@^0.8.1:
     source-map "^0.5.6"
     source-map-resolve "^0.5.0"
     use "^3.1.0"
+
+snapsvg-cjs@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/snapsvg-cjs/-/snapsvg-cjs-0.0.6.tgz#3b2f56af2573d3d364c3ed5bf8885745f4d2dde1"
+  integrity sha1-Oy9WryVz09Nkw+1b+IhXRfTS3eE=
+  dependencies:
+    snapsvg "0.5.1"
+
+snapsvg@0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/snapsvg/-/snapsvg-0.5.1.tgz#0caf52c79189a290746fc446cc5e863f6bdddfe3"
+  integrity sha1-DK9Sx5GJopB0b8RGzF6GP2vd3+M=
+  dependencies:
+    eve "~0.5.1"
 
 source-map-resolve@^0.5.0:
   version "0.5.2"
