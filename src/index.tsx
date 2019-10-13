@@ -1,3 +1,6 @@
+import React from 'react'
+import ReactDOM from 'react-dom'
+
 document.addEventListener('DOMContentLoaded', () => {
-  console.log(1)
+  ReactDOM.render(<div>very hello?!</div>, document.querySelector('#app'))
 })
