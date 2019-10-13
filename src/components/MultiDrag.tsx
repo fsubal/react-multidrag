@@ -13,11 +13,13 @@ interface Layer {
 
 interface State {
   selected: Record<Layer['id'], boolean>
+  dragStartPosition: Record<Layer['id'], [number, number]>
   layers: Layer[]
 }
 
 const initialState: State = {
   selected: {},
+  dragStartPosition: {},
   layers: [
     { id: '1', x: 10, y: 10, z: 0, color: 'cyan' },
     { id: '2', x: 100, y: 100, z: 1, color: 'orange' },
@@ -35,7 +37,9 @@ type KnownLayerActions = ReturnType<
 
 const LayerActions = {
   selected: (id: Layer['id']) => action('layer/selected', { id }),
-  moved: (dx: number, dy: number) => action('layer/moved', { dx, dy })
+  dragStarted: () => action('layer/dragStarted', {}),
+  dragged: (dx: number, dy: number) => action('layer/dragged', { dx, dy }),
+  dragEnded: () => action('layer/dragEnded', {})
 }
 
 const reducer = (currentState = initialState, action: KnownLayerActions) =>
@@ -47,15 +51,35 @@ const reducer = (currentState = initialState, action: KnownLayerActions) =>
         break
       }
 
-      case 'layer/moved': {
-        const { dx, dy } = action.payload
+      case 'layer/dragStarted': {
         state.layers.forEach(layer => {
           if (!state.selected[layer.id]) {
             return
           }
 
-          layer.x += dx
-          layer.y += dy
+          state.dragStartPosition[layer.id] = [layer.x, layer.y]
+        })
+        break
+      }
+
+      case 'layer/dragEnded': {
+        state.dragStartPosition = {}
+        break
+      }
+
+      case 'layer/dragged': {
+        const { dx, dy } = action.payload
+        state.layers.forEach(layer => {
+          if (!state.selected[layer.id]) {
+            return
+          }
+          if (!state.dragStartPosition) {
+            return
+          }
+
+          const [x, y] = state.dragStartPosition[layer.id]
+          layer.x = x + dx
+          layer.y = y + dy
         })
         break
       }
@@ -74,8 +98,15 @@ export default function MultiDrag() {
   }
 
   const onMove = (dx: number, dy: number) => {
-    console.log(dx, dy)
-    dispatch(LayerActions.moved(dx, dy))
+    dispatch(LayerActions.dragged(dx, dy))
+  }
+
+  const onDragStart = () => {
+    dispatch(LayerActions.dragStarted())
+  }
+
+  const onDragEnd = () => {
+    dispatch(LayerActions.dragEnded())
   }
 
   return (
@@ -91,7 +122,9 @@ export default function MultiDrag() {
           layer={layer}
           onSelect={onSelect}
           selected={!!state.selected[layer.id]}
+          onDragStart={onDragStart}
           onMove={onMove}
+          onDragEnd={onDragEnd}
         />
       ))}
     </svg>
@@ -102,17 +135,26 @@ function Layer({
   layer,
   selected,
   onSelect,
+  onDragStart,
+  onDragEnd,
   onMove
 }: {
   layer: Layer
   selected?: boolean
   onSelect(id: Layer['id']): void
+  onDragStart(): void
+  onDragEnd(): void
   onMove(dx: number, dy: number, x: number, y: number, event: MouseEvent): void
 }) {
   const ref = useRef<SVGRectElement | null>(null)
+
   useEffect(() => {
     const snap = Snap(ref.current!)
-    snap.drag(onMove, console.log, console.log)
+    snap.drag(onMove, onDragStart, onDragEnd)
+
+    return () => {
+      snap.undrag()
+    }
   }, [])
 
   const onClick = () => {
