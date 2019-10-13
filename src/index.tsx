@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import MultiDrag from './components/MultiDrag'
 
 document.addEventListener('DOMContentLoaded', () => {
-  ReactDOM.render(<div>very hello?!</div>, document.querySelector('#app'))
+  ReactDOM.render(<MultiDrag />, document.querySelector('#app'))
 })
