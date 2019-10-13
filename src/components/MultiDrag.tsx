@@ -2,6 +2,7 @@ import immer from 'immer'
 import sortBy from 'lodash/sortBy'
 import React, { useReducer, useEffect, useRef } from 'react'
 import Snap from '../svg'
+import useSelection from './useSelection'
 
 interface Layer {
   id: string
@@ -37,6 +38,7 @@ type KnownLayerActions = ReturnType<
 
 const LayerActions = {
   selected: (id: Layer['id']) => action('layer/selected', { id }),
+  unselected: (id: Layer['id']) => action('layer/unselected', { id }),
   unselectedAll: () => action('layer/unselectedAll', {}),
   dragStarted: () => action('layer/dragStarted', {}),
   dragged: (dx: number, dy: number) => action('layer/dragged', { dx, dy }),
@@ -50,6 +52,12 @@ const reducer = (currentState = initialState, action: KnownLayerActions) =>
       case 'layer/selected': {
         const { id } = action.payload
         state.selected[id] = true
+        break
+      }
+
+      case 'layer/unselected': {
+        const { id } = action.payload
+        state.selected[id] = false
         break
       }
 
@@ -125,13 +133,23 @@ export default function MultiDrag() {
     }
 
     const outside = !composition.current.contains(e.target as Node)
-    if (outside) {
+    if (outside && !selecting) {
       dispatch(LayerActions.unselectedAll())
     }
   }
 
+  const selecting = useSelection(
+    ['.js-selectable'],
+    ['.js-boundary'],
+    (added, removed) => {
+      added.forEach(id => dispatch(LayerActions.selected(id)))
+      removed.forEach(id => dispatch(LayerActions.unselected(id)))
+    }
+  )
+
   return (
     <svg
+      className="js-boundary"
       viewBox="0 0 500 500"
       width="500"
       height="500"
@@ -192,6 +210,8 @@ function Layer({
 
   return (
     <rect
+      className="js-selectable"
+      data-layer-id={layer.id}
       ref={ref}
       fillOpacity={selected ? 1 : 0.5}
       fill={layer.color}
