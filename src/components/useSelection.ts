@@ -30,8 +30,8 @@ export default function useSelection(
       const { added, removed } = changed
 
       onChange(
-        added.map(el => (el as HTMLElement).dataset.layerId!),
-        removed.map(el => (el as HTMLElement).dataset.layerId!)
+        added.map(el => (el as SVGElement).dataset.layerId!),
+        removed.map(el => (el as SVGElement).dataset.layerId!)
       )
     }
 

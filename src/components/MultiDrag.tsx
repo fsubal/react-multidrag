@@ -157,7 +157,7 @@ export default function MultiDrag() {
       onClick={onOutsideClick}
     >
       <g ref={composition}>
-        {sortBy(state.layers, l => l.z).map(layer => (
+        {sortBy(state.layers, ({ z }) => z).map(layer => (
           <Layer
             key={layer.id}
             layer={layer}
